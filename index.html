@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ahmed ❤ Anne — Est. 18 Jun 2025</title>
 
+<!-- Type + animation libs -->
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.2/vanilla-tilt.min.js"></script>
@@ -22,18 +23,23 @@
 
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* Cute font pairing */
-body{font-family:'Quicksand',sans-serif;background:var(--bg);color:var(--navy);overflow-x:hidden;cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text x='0' y='24' font-size='24'>💖</text></svg>") 16 16,auto;}
-h1,h2,h3{font-family:'Pacifico',cursive;}
+body{
+  font-family:'Quicksand',sans-serif;
+  background:var(--bg);
+  color:var(--navy);
+  overflow-x:hidden;
+  cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text x='0' y='24' font-size='24'>💖</text></svg>") 16 16,auto;
+}
+h1,h2,h3{font-family:'Pacifico',cursive}
 
 /* ---------- FLOATING HEARTS CANVAS ---------- */
-#heartCanvas{position:fixed;inset:0;z-index:-2;}
+#heartCanvas{position:fixed;inset:0;z-index:-2}
 
-/* ---------- SPARKLE PARTICLES (CSS only) ---------- */
-.sparkle{position:fixed;inset:0;pointer-events:none;z-index:-1;}
+/* ---------- SPARKLE PARTICLES ---------- */
+.sparkle{position:fixed;inset:0;pointer-events:none;z-index:-1}
 .sparkle span{
   width:4px;height:4px;border-radius:50%;background:var(--sparkle);
-  position:absolute;top:-10px;left:50%;opacity:0;animation:spark 6s linear infinite;
+  position:absolute;top:-10px;left:50%;opacity:0;animation:spark 6s linear infinite
 }
 @keyframes spark{
   0%{transform:translateX(-50%) translateY(0) scale(0);opacity:0}
@@ -42,51 +48,78 @@ h1,h2,h3{font-family:'Pacifico',cursive;}
 }
 
 /* ---------- HERO ---------- */
-.hero{min-height:85vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:4rem 1rem;}
-h1{font-size:clamp(2.5rem,6vw,5rem);color:var(--navy);}
-.subtitle{font-size:1.3rem;margin:1rem 0 2rem;background:linear-gradient(90deg,var(--pink-dark),var(--pink));-webkit-background-clip:text;color:transparent;}
+.hero{
+  min-height:85vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:4rem 1rem
+}
+h1{font-size:clamp(2.5rem,6vw,5rem)}
+.subtitle{
+  font-size:1.3rem;margin:1rem 0 2rem;
+  background:linear-gradient(90deg,var(--pink-dark),var(--pink));
+  -webkit-background-clip:text;color:transparent
+}
 .btn{
   display:inline-block;border:none;border-radius:999px;padding:.8rem 1.6rem;font-size:1rem;cursor:pointer;
   background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);color:#fff;
-  transition:transform .25s,box-shadow .25s;
+  transition:transform .25s,box-shadow .25s;text-decoration:none
 }
-.btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(10,29,55,.25);}
-.scrollCue{margin-top:4rem;stroke:var(--navy-light);animation:bounce 2s infinite;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(10,29,55,.25)}
+.scrollCue{margin-top:4rem;stroke:var(--navy-light);animation:bounce 2s infinite}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 
-/* ---------- TIMELINE ---------- */
-main{padding:4rem 1rem 6rem;max-width:900px;margin:auto;}
-#timeline{list-style:none;}
-.timeline-item{margin-bottom:2rem;opacity:0;transform:translateY(40px);transition:all .6s ease-out;}
-.timeline-item.reveal{opacity:1;transform:none;}
-.card{
-  background:#fff;border-left:6px solid var(--pink-dark);padding:1rem 1.25rem;border-radius:.4rem .9rem .9rem .4rem;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);will-change:transform;
+/* ---------- POLAROID GALLERY ---------- */
+.gallery{
+  display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin:3rem 0
 }
-.card time{display:block;font-size:.85rem;color:var(--navy-light);margin-bottom:.4rem;}
-.card p{line-height:1.5;word-wrap:anywhere;}
-
-/* ---------- POLAROID PHOTO CARDS ---------- */
-.gallery{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin:3rem 0;}
 .polaroid{
   background:#fff;padding:.75rem;border-radius:.5rem;
   box-shadow:0 6px 16px rgba(0,0,0,.1);
-  transform:rotate(calc(-4deg + 8deg*var(--i)));
-  transition:.3s;
+  transform:rotate(calc(-4deg + 8deg*var(--i)));transition:.3s
 }
-.polaroid img{display:block;width:150px;height:180px;object-fit:cover;border-radius:.3rem;}
-.polaroid:hover{box-shadow:0 10px 22px rgba(0,0,0,.15);}
+.polaroid img{display:block;width:150px;height:180px;object-fit:cover;border-radius:.3rem}
+.polaroid:hover{box-shadow:0 10px 22px rgba(0,0,0,.15)}
+
+/* ---------- STORY SECTION ---------- */
+.story{
+  background:var(--sparkle);padding:3rem 1.25rem 4rem;
+  border-radius:1rem;box-shadow:0 8px 24px rgba(0,0,0,.05);
+  max-width:760px;margin:0 auto 4rem;line-height:1.7
+}
+.story h2{
+  font-family:'Pacifico',cursive;
+  font-size:clamp(1.8rem,4.5vw,2.6rem);
+  margin-bottom:1.4rem;
+  background:linear-gradient(90deg,var(--pink-dark),var(--pink));
+  -webkit-background-clip:text;color:transparent
+}
+.story em{font-weight:600;color:var(--navy-light)}
+.story .emoji,.story .heart{font-size:1.25rem}
+.story .punchline{
+  margin-top:1.6rem;font-size:1.1rem;font-weight:600;text-align:center
+}
+
+/* ---------- TIMELINE ---------- */
+main{padding:4rem 1rem 6rem;max-width:900px;margin:auto}
+#timeline{list-style:none}
+.timeline-item{margin-bottom:2rem;opacity:0;transform:translateY(40px);transition:all .6s ease-out}
+.timeline-item.reveal{opacity:1;transform:none}
+.card{
+  background:#fff;border-left:6px solid var(--pink-dark);padding:1rem 1.25rem;
+  border-radius:.4rem .9rem .9rem .4rem;box-shadow:0 4px 12px rgba(0,0,0,.06)
+}
+.card time{display:block;font-size:.85rem;color:var(--navy-light);margin-bottom:.4rem}
+.card p{line-height:1.5;word-wrap:anywhere}
 
 /* ---------- LINKS & FOOTER ---------- */
-a{color:var(--navy);text-decoration:none;background-image:linear-gradient(to right,var(--pink-dark),var(--pink));background-size:0 2px;background-position:0 100%;background-repeat:no-repeat;transition:.3s;}
-a:hover{background-size:100% 2px;}
-footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;font-size:.875rem;}
+a{color:var(--navy);text-decoration:none;background-image:linear-gradient(to right,var(--pink-dark),var(--pink));background-size:0 2px;background-position:0 100%;background-repeat:no-repeat;transition:.3s}
+a:hover{background-size:100% 2px}
+footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;font-size:.875rem}
 
 /* ---------- CUSTOM CURSOR TRAIL ---------- */
 .trail{
   position:fixed;width:18px;height:18px;pointer-events:none;transform:translate(-50%,-50%);
   background:radial-gradient(circle at center,var(--pink) 40%,transparent 41%);
-  border-radius:50%;opacity:.85;animation:fade 1.3s forwards;
+  border-radius:50%;opacity:.85;animation:fade 1.3s forwards
 }
 @keyframes fade{to{opacity:0;transform:translate(-50%,-50%) scale(0)}}
 
@@ -104,19 +137,46 @@ footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;fon
 <header class="hero">
   <h1>Ahmed&nbsp;&amp;&nbsp;Anne</h1>
   <p class="subtitle">Officially together since <strong>18&nbsp;June&nbsp;2025</strong></p>
+
   <button id="addEntryBtn" class="btn">Write today’s memory ✍️</button>
+  <a href="#firstDate" class="btn" style="margin-top:1rem;display:inline-block">Read our first date 💌</a>
+
   <svg class="scrollCue" width="20" height="40"><circle cx="10" cy="10" r="3"/></svg>
 </header>
 
 <main>
-  <!-- Polaroid gallery (replace src with your own pics) -->
+  <!-- ♥ Polaroid gallery -->
   <section class="gallery" id="gallery">
-    <figure class="polaroid" style="--i:0"><img src="https://picsum.photos/300/360?random=1" alt="Random cute pic"><figcaption>First coffee date</figcaption></figure>
-    <figure class="polaroid" style="--i:1"><img src="https://picsum.photos/300/360?random=2" alt=""><figcaption>After-work sunset</figcaption></figure>
-    <figure class="polaroid" style="--i:2"><img src="https://picsum.photos/300/360?random=3" alt=""><figcaption>Laughing till 2 AM</figcaption></figure>
+    <figure class="polaroid" style="--i:0">
+      <img src="images/roblox-dog-walk.jpeg" alt="Dog Walk date">
+      <figcaption>Dog Walk 🐕‍🦺</figcaption>
+    </figure>
+    <figure class="polaroid" style="--i:1">
+      <img src="images/roblox-draw-switch.jpeg" alt="Draw and Switch">
+      <figcaption>Draw &amp; Switch 🎨😂</figcaption>
+    </figure>
+    <figure class="polaroid" style="--i:2">
+      <img src="images/roblox-dress2impress.jpeg" alt="Dress to Impress">
+      <figcaption>Dress&nbsp;to&nbsp;Impress — I won! ✨</figcaption>
+    </figure>
   </section>
 
-  <!-- Journal timeline -->
+  <!-- ♥ Roblox First-Date Story -->
+  <section class="story" id="firstDate">
+    <h2>Our Very First Roblox Date</h2>
+
+    <p><strong>17 June 2025.</strong> You popped into my Roblox server wearing a dog avatar I’d daringly picked for you. <span class="emoji">🐶</span></p>
+
+    <p><em>Game&nbsp;#1 – Dog Walk:</em> we ran in circles, spammed “/e dance,” and tried to leash each other while the virtual sunset turned everything pink. I swear the dogs were jealous.</p>
+
+    <p><em>Game&nbsp;#2 – Draw &amp; Switch:</em> your masterpiece started as a flower, mutated into a dinosaur, and finished as… a baguette? I laughed so hard my avatar’s head actually popped off. <span class="emoji">🎨</span></p>
+
+    <p><em>Game&nbsp;#3 – Dress to Impress:</em> the theme was “Mid-summer Elegance.” You showed up in a neon-green taco suit. I went full glam, heels + sparkles—and won by <strong>one</strong> vote! (Still bragging today.) <span class="emoji">✨👗✨</span></p>
+
+    <p class="punchline">Three games, infinite screenshots, and exactly <span class="heart">❤</span> one new relationship unlocked.</p>
+  </section>
+
+  <!-- Journal timeline (auto-filled by JS) -->
   <ul id="timeline"></ul>
 </main>
 
@@ -124,11 +184,25 @@ footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;fon
 
 <script>
 /* ================= FLOATING HEARTS ================= */
-const canvas=document.getElementById("heartCanvas"),ctx=canvas.getContext("2d");function size(){canvas.width=innerWidth;canvas.height=innerHeight}
+const canvas=document.getElementById("heartCanvas"),ctx=canvas.getContext("2d");
+function size(){canvas.width=innerWidth;canvas.height=innerHeight}
 addEventListener("resize",size);size();
-let hearts=[...Array(45)].map(()=>randHeart());
+const hearts=[...Array(45)].map(()=>randHeart());
 function randHeart(){return{x:Math.random()*canvas.width,y:canvas.height+20,size:10+Math.random()*18,speed:.4+Math.random(),opacity:.5+Math.random()*.5}}
-function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);hearts.forEach(h=>{ctx.fillStyle=`rgba(255,153,201,${h.opacity})`;ctx.beginPath();ctx.moveTo(h.x,h.y);ctx.arc(h.x-h.size/2,h.y,h.size/2,0,2*Math.PI);ctx.arc(h.x+h.size/2,h.y,h.size/2,0,2*Math.PI);ctx.lineTo(h.x,h.y+h.size);ctx.closePath();ctx.fill();h.y-=h.speed;if(h.y<-20)Object.assign(h,randHeart())});requestAnimationFrame(draw)}draw();
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hearts.forEach(h=>{
+    ctx.fillStyle=`rgba(255,153,201,${h.opacity})`;
+    ctx.beginPath();
+    ctx.moveTo(h.x,h.y);
+    ctx.arc(h.x-h.size/2,h.y,h.size/2,0,2*Math.PI);
+    ctx.arc(h.x+h.size/2,h.y,h.size/2,0,2*Math.PI);
+    ctx.lineTo(h.x,h.y+h.size);
+    ctx.closePath();ctx.fill();
+    h.y-=h.speed;if(h.y<-20)Object.assign(h,randHeart());
+  });
+  requestAnimationFrame(draw)
+}draw();
 
 /* ================= SPARKLES ================= */
 const sparkle=document.querySelector(".sparkle");
@@ -140,22 +214,43 @@ for(let i=0;i<60;i++){
 }
 
 /* ================= TRAIL CURSOR ================= */
-let last=0;addEventListener("pointermove",e=>{const t=document.createElement("div");t.className="trail";t.style.left=e.clientX+"px";t.style.top=e.clientY+"px";document.body.appendChild(t);setTimeout(()=>t.remove(),1300)},{passive:true});
+addEventListener("pointermove",e=>{
+  const t=document.createElement("div");
+  t.className="trail";
+  t.style.left=e.clientX+"px";
+  t.style.top=e.clientY+"px";
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),1300)
+},{passive:true});
 
 /* ================= JOURNAL ================= */
 const timeline=document.getElementById("timeline"),btn=document.getElementById("addEntryBtn");
 function fmt(d){return new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}
 function store(arr){localStorage.setItem("loveJournal",JSON.stringify(arr))}
 function load(){return JSON.parse(localStorage.getItem("loveJournal")||"[]")}
-function render(){timeline.innerHTML="";load().forEach(e=>{const li=document.createElement("li");li.className="timeline-item";li.innerHTML=`<div class="card" data-tilt><time>${fmt(e.date)}</time><p>${e.text}</p></div>`;timeline.prepend(li)})}
-btn.onclick=()=>{const text=prompt("Sweet memory to save?");if(!text)return;const entries=load();entries.push({date:Date.now(),text});store(entries);render();confetti({origin:{y:.2}})}
+function render(){
+  timeline.innerHTML="";
+  load().forEach(e=>{
+    const li=document.createElement("li");
+    li.className="timeline-item";
+    li.innerHTML=`<div class="card" data-tilt><time>${fmt(e.date)}</time><p>${e.text}</p></div>`;
+    timeline.prepend(li)
+  })
+}
+btn.onclick=()=>{
+  const text=prompt("Sweet memory to save?");
+  if(!text)return;
+  const entries=load();
+  entries.push({date:Date.now(),text});
+  store(entries);render();confetti({origin:{y:.2}})
+};
 render();
 
-/* ================= SCROLL REVEAL ================= */
-const observer=new IntersectionObserver((entries)=>entries.forEach(ent=>ent.isIntersecting&&ent.target.classList.add("reveal")),{threshold:.2});
+/* ================= REVEAL ON SCROLL ================= */
+const observer=new IntersectionObserver(entries=>entries.forEach(ent=>ent.isIntersecting&&ent.target.classList.add("reveal")),{threshold:.2});
 document.querySelectorAll(".timeline-item").forEach(el=>observer.observe(el));
 
-/* ================= TILT ON POLAROIDS & CARDS ================= */
+/* ================= TILT EFFECTS ================= */
 VanillaTilt.init(document.querySelectorAll("[data-tilt]"),{max:8,speed:500,glare:true,"max-glare":.12});
 
 /* ================= HERO ENTRANCE ================= */
@@ -164,14 +259,35 @@ anime.timeline()
   .add({targets:'.subtitle',opacity:[0,1],translateY:[-30,0],duration:600,offset:'-=300'})
   .add({targets:'.btn',scale:[.8,1],opacity:[0,1],duration:500,offset:'-=350'});
 
-/* ================= CONFETTI (tiny util) ================= */
+/* ================= CONFETTI ================= */
 function confetti({count=40,origin={x:.5,y:.6}}={}){
   const defaults={origin};
-  function fire(particleRatio,opts){const n=Math.floor(count*particleRatio);confettiLib(Object.assign({},defaults,opts,{particleCount:n}))}
-  fire(.25,{spread:55,scalar:.7});fire(.2,{spread:60});fire(.35,{spread:70,decay:.91,scalar:.8});fire(.1,{spread:100,decay:.92,scalar:.9});fire(.1,{spread:120,decay:.92,scalar:1.2})
+  function fire(ratio,opts){
+    const n=Math.floor(count*ratio);
+    confettiLib(Object.assign({},defaults,opts,{particleCount:n}))
+  }
+  fire(.25,{spread:55,scalar:.7});
+  fire(.2,{spread:60});
+  fire(.35,{spread:70,decay:.91,scalar:.8});
+  fire(.1,{spread:100,decay:.92,scalar:.9});
+  fire(.1,{spread:120,decay:.92,scalar:1.2})
 }
-/* quick mini-confetti script */
-function confettiLib(opts){const end=Date.now()+opts.particleCount*4,colors=["#FFC9E0","#FFA4C8","#FCD3E5","#FFECF6"],interval=setInterval(()=>{const timeLeft=end-Date.now();if(timeLeft<=0)return clearInterval(interval);const particle=document.createElement("span");particle.className="trail";particle.style.background=colors[Math.floor(Math.random()*colors.length)];particle.style.left=Math.random()*100+"%";particle.style.top=opts.origin.y*100+"%";particle.style.animation="fade 1.2s forwards";document.body.appendChild(particle);setTimeout(()=>particle.remove(),1200)},25)}
+function confettiLib(opts){
+  const end=Date.now()+opts.particleCount*4,
+        colors=["#FFC9E0","#FFA4C8","#FCD3E5","#FFECF6"],
+        interval=setInterval(()=>{
+          const timeLeft=end-Date.now();
+          if(timeLeft<=0)return clearInterval(interval);
+          const p=document.createElement("span");
+          p.className="trail";
+          p.style.background=colors[Math.floor(Math.random()*colors.length)];
+          p.style.left=Math.random()*100+"%";
+          p.style.top=opts.origin.y*100+"%";
+          p.style.animation="fade 1.2s forwards";
+          document.body.appendChild(p);
+          setTimeout(()=>p.remove(),1200)
+        },25)
+}
 </script>
 </body>
 </html>
