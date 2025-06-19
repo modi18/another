@@ -1,0 +1,238 @@
+<!-- period-tracker.html  –  “Anne’s Flo” -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Anne’s Flo Calendar 💗</title>
+
+<!-- fonts & tiny helpers -->
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.2/vanilla-tilt.min.js"></script>
+
+<style>
+/* -------- GLOBAL / THEME -------- */
+:root{
+  --pink:#FFC9E0;
+  --pink-dark:#FFA4C8;
+  --navy:#0A1D37;
+  --navy-light:#213659;
+  --bg:#FFFAFD;
+  --flow:#FFAAC3;     /* active period cells   */
+  --mood:#FDF2F8;     /* mood background cells */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Quicksand',sans-serif;
+  background:var(--bg);
+  color:var(--navy);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:3rem 1rem 4rem;
+}
+h1{font-family:'Pacifico',cursive;font-size:clamp(2.2rem,5vw,3.6rem);text-align:center}
+header p{margin:.5rem 0 2rem;font-weight:600;color:var(--navy-light)}
+button,select{
+  font-family:inherit;font-size:1rem;border:none;border-radius:999px;
+  padding:.6rem 1.2rem;cursor:pointer;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+  color:#fff;transition:.25s
+}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(10,29,55,.25)}
+
+main{width:100%;max-width:900px}
+.controls{
+  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;align-items:center;margin-bottom:2rem
+}
+.controls select{padding:.5rem 2.5rem .5rem 1rem;background:#fff;color:var(--navy);box-shadow:0 3px 8px rgba(0,0,0,.08)}
+/* -------- CALENDAR GRID -------- */
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:.4rem;
+}
+.day{
+  background:#fff;
+  padding:0;
+  aspect-ratio:1/1;
+  border-radius:.6rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  box-shadow:0 3px 8px rgba(0,0,0,.04);
+  user-select:none;
+  transition:background .2s;
+}
+.day:hover{outline:2px solid var(--pink-dark)}
+.day.disabled{opacity:.25;pointer-events:none}
+.day.period{background:var(--flow)}
+.day .date{font-weight:600}
+.day .mood{font-size:1.25rem;margin-top:.25rem}
+
+.legend{
+  margin:2.2rem 0 0;
+  display:flex;gap:1rem;justify-content:center;font-size:.9rem;flex-wrap:wrap
+}
+.legend span{
+  display:inline-flex;align-items:center;gap:.35rem
+}
+.legend i{
+  display:inline-block;width:18px;height:18px;border-radius:4px;background:var(--flow)
+}
+
+/* cute floating hearts in BG */
+.bg-heart{position:fixed;inset:0;pointer-events:none;z-index:-1}
+.bg-heart span{
+  position:absolute;top:-20px;left:-20px;width:18px;height:18px;
+  background:var(--pink-dark);clip-path:polygon(50% 0,61% 12%,75% 12%,86% 25%,93% 39%,94% 55%,89% 68%,78% 82%,64% 94%,50% 98%,36% 94%,22% 82%,11% 68%,6% 55%,7% 39%,14% 25%,25% 12%,39% 12%);
+  opacity:.4;animation:float 12s linear infinite;
+}
+@keyframes float{
+  0%{transform:translate(0,0) scale(.6)}
+  100%{transform:translate(120vw,110vh) scale(1.2)}
+}
+
+/* mobile tweaks */
+@media(max-width:500px){
+  .controls select{flex:1}
+  .calendar{gap:.25rem}
+}
+</style>
+</head>
+<body>
+  <div class="bg-heart" aria-hidden="true"></div>
+
+  <header>
+    <h1>Anne’s Flo</h1>
+    <p>Tap a day to toggle <em>Period</em>, long-press to add a <em>Mood</em> ✨</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <button id="prevBtn">⟵</button>
+      <select id="monthSelect"></select>
+      <select id="yearSelect"></select>
+      <button id="nextBtn">⟶</button>
+    </div>
+
+    <div class="calendar" id="calendar" aria-live="polite"></div>
+
+    <div class="legend">
+      <span><i></i> Period day</span>
+      <span>😊 / 😔 = Mood</span>
+    </div>
+  </main>
+
+<script>
+/* ========= HELPERS ========= */
+const calEl  = document.getElementById('calendar'),
+      monthSel= document.getElementById('monthSelect'),
+      yearSel = document.getElementById('yearSelect'),
+      prevBtn = document.getElementById('prevBtn'),
+      nextBtn = document.getElementById('nextBtn');
+
+const MONTHS = [...Array(12)].map((_,i)=>new Date(0,i).toLocaleString('default',{month:'long'}));
+MONTHS.forEach((m,i)=>monthSel.innerHTML+=`<option value="${i}">${m}</option>`);
+const THIS_YEAR = new Date().getFullYear();
+for(let y=THIS_YEAR-5; y<=THIS_YEAR+5; y++) yearSel.innerHTML+=`<option>${y}</option>`;
+
+/* ====== STORAGE (simple JSON keyed by "YYYY-MM") ====== */
+function key(year,month){return `${year}-${month}`;}
+function load(year,month){
+  return JSON.parse(localStorage.getItem(key(year,month))||'{}');
+}
+function save(year,month,data){
+  localStorage.setItem(key(year,month),JSON.stringify(data));
+}
+
+/* ====== RENDER CALENDAR ====== */
+function buildCalendar(year,month){         // month = 0-based
+  calEl.innerHTML='';
+  const firstDay = new Date(year,month,1).getDay(); // 0-Sun
+  const lastDate = new Date(year,month+1,0).getDate();
+  const data = load(year,month);
+
+  // leave blank squares for days before month starts
+  for(let i=0;i<firstDay;i++){
+    const blank=document.createElement('div');
+    blank.className='day disabled';
+    calEl.appendChild(blank);
+  }
+
+  for(let d=1; d<=lastDate; d++){
+    const cell=document.createElement('div');
+    cell.className='day';
+    cell.tabIndex=0;
+    cell.dataset.date=d;
+    cell.innerHTML=`<span class="date">${d}</span>`;
+    if(data[d]?.period) cell.classList.add('period');
+    if(data[d]?.mood) cell.innerHTML+=`<span class="mood">${data[d].mood}</span>`;
+    calEl.appendChild(cell);
+  }
+  // tilt hearts on cells 😍:
+  VanillaTilt.init(document.querySelectorAll('.day:not(.disabled)'),{max:4,speed:400,scale:1.05});
+}
+
+/* ========== EVENT HANDLERS ========== */
+let pressTimer=null;
+calEl.addEventListener('pointerdown',e=>{
+  const cell=e.target.closest('.day'); if(!cell||cell.classList.contains('disabled')) return;
+  pressTimer=setTimeout(()=>{             // LONG-PRESS  ─ mood quick-add
+    const moods=['😊','😍','😔','😭','🤪','😴','🤯','🤢'],
+          pick=prompt('Mood emoji? (enter any emoji)', moods[Math.floor(Math.random()*moods.length)]);
+    if(pick){toggleMood(cell.dataset.date,pick)}
+    pressTimer=null;
+  },500);
+});
+calEl.addEventListener('pointerup',e=>{
+  if(pressTimer){          // short tap = period toggle
+    clearTimeout(pressTimer);
+    const cell=e.target.closest('.day'); if(!cell) return;
+    togglePeriod(cell.dataset.date);
+  }
+});
+
+function togglePeriod(date){
+  const data=load(yearSel.value,monthSel.value);
+  data[date] = data[date] || {};
+  data[date].period = !data[date].period;
+  if(!data[date].period && !data[date].mood) delete data[date];
+  save(yearSel.value,monthSel.value,data);
+  buildCalendar(+yearSel.value,+monthSel.value);
+}
+function toggleMood(date,emoji){
+  const data=load(yearSel.value,monthSel.value);
+  data[date] = data[date] || {};
+  data[date].mood = emoji;
+  save(yearSel.value,monthSel.value,data);
+  buildCalendar(+yearSel.value,+monthSel.value);
+}
+
+/* month navigation */
+function jump(y,m){
+  yearSel.value=y; monthSel.value=m;
+  buildCalendar(+y,+m);
+}
+prevBtn.onclick = ()=>{let y=+yearSel.value,m=+monthSel.value-1;if(m<0){m=11;y--;}jump(y,m);}
+nextBtn.onclick = ()=>{let y=+yearSel.value,m=+monthSel.value+1;if(m>11){m=0;y++;}jump(y,m);}
+monthSel.onchange = yearSel.onchange = ()=>jump(+yearSel.value,+monthSel.value);
+
+/* startup */
+jump(new Date().getFullYear(), new Date().getMonth());
+
+/* ========== FLOAT SPORADIC HEARTS BG ========== */
+const bg=document.querySelector('.bg-heart');
+for(let i=0;i<35;i++){
+  const h=document.createElement('span');
+  h.style.left=Math.random()*100+'vw';
+  h.style.animationDuration=8+Math.random()*8+'s';
+  h.style.animationDelay=Math.random()*12+'s';
+  bg.appendChild(h);
+}
+</script>
+</body>
+</html>
