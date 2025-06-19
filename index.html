@@ -162,8 +162,7 @@ footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;fon
 
     <!-- ♥ Roblox Arab Mic memory -->
     <figure class="polaroid" style="--i:3">
-      <!-- update the filename once your screenshot is saved -->
-      <img src="images/arab-mic.jpg" alt="Arab Mic chaos">
+      <img src="images/arab-mic.jpeg" alt="Arab Mic chaos">
       <figcaption>Arab Mic 🎤🔥</figcaption>
     </figure>
   </section>
@@ -216,8 +215,8 @@ footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;fon
   <!-- Journal timeline (auto-filled by JS) -->
   <ul id="timeline">
 
-    <!-- ♥ Hard-coded Arab Mic entry -->
-    <li class="timeline-item reveal">
+    <!-- ♥ Hard-coded Arab Mic entry (now flagged as seed) -->
+    <li class="timeline-item seed reveal">
       <div class="card" data-tilt>
         <time>19 June 2025</time>
         <p>
@@ -281,6 +280,7 @@ function fmt(d){return new Date(d).toLocaleDateString(undefined,{year:'numeric',
 function store(arr){localStorage.setItem("loveJournal",JSON.stringify(arr))}
 function load(){return JSON.parse(localStorage.getItem("loveJournal")||"[]")}
 function render(){
+  /* wipe only non-seed dynamic items */
   timeline.querySelectorAll('.timeline-item:not(.seed)').forEach(el=>el.remove());
   load().forEach(e=>{
     const li=document.createElement("li");
