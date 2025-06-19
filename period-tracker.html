@@ -1,4 +1,4 @@
-<!-- period-tracker.html  –  “Anne’s Flo” -->
+<!-- period-tracker.html – “Anne’s Flo” (Firebase + instant render) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,67 +6,36 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Anne’s Flo Calendar 💗</title>
 
-<!-- fonts & tiny helpers -->
+<!-- fonts & cute tilt helper -->
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.2/vanilla-tilt.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.2/dist/vanilla-tilt.min.js"></script>
+
+<!-- Firebase SDKs – NO defer, so they run before our code -->
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-database-compat.js"></script>
 
-
 <style>
 :root{
-  --pink:#FFC9E0;
-  --pink-dark:#FFA4C8;
-  --navy:#0A1D37;
-  --navy-light:#213659;
-  --bg:#FFFAFD;
-  --flow:#FFAAC3;   /* active period cells   */
-  --mood:#FDF2F8;   /* mood background cells */
+  --pink:#FFC9E0;--pink-dark:#FFA4C8;--navy:#0A1D37;--navy-light:#213659;
+  --bg:#FFFAFD;--flow:#FFAAC3;--mood:#FDF2F8;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:'Quicksand',sans-serif;
-  background:var(--bg);
-  color:var(--navy);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:3rem 1rem 4rem;
-}
+body{font-family:'Quicksand',sans-serif;background:var(--bg);color:var(--navy);
+     min-height:100vh;display:flex;flex-direction:column;align-items:center;
+     padding:3rem 1rem 4rem}
 h1{font-family:'Pacifico',cursive;font-size:clamp(2.2rem,5vw,3.6rem);text-align:center}
 header p{margin:.5rem 0 2rem;font-weight:600;color:var(--navy-light)}
-button,select{
-  font-family:inherit;font-size:1rem;border:none;border-radius:999px;
-  padding:.6rem 1.2rem;cursor:pointer;
-  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
-  color:#fff;transition:.25s
-}
+button,select{font:inherit 1rem/1;border:none;border-radius:999px;padding:.6rem 1.2rem;cursor:pointer;
+              background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;
+              transition:.25s}
 button:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(10,29,55,.25)}
 main{width:100%;max-width:900px}
-.controls{
-  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;align-items:center;margin-bottom:2rem
-}
+.controls{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;align-items:center;margin-bottom:2rem}
 .controls select{padding:.5rem 2.5rem .5rem 1rem;background:#fff;color:var(--navy);box-shadow:0 3px 8px rgba(0,0,0,.08)}
-.calendar{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:.4rem;
-}
-.day{
-  background:#fff;
-  padding:0;
-  aspect-ratio:1/1;
-  border-radius:.6rem;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  box-shadow:0 3px 8px rgba(0,0,0,.04);
-  user-select:none;
-  transition:background .2s;
-}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem}
+.day{background:#fff;aspect-ratio:1/1;border-radius:.6rem;display:flex;flex-direction:column;
+     align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.04);
+     transition:background .2s}
 .day:hover{outline:2px solid var(--pink-dark)}
 .day.disabled{opacity:.25;pointer-events:none}
 .day.period{background:var(--flow)}
@@ -74,25 +43,16 @@ main{width:100%;max-width:900px}
 .day .mood{font-size:1.25rem;margin-top:.25rem}
 .legend{margin:2.2rem 0 0;display:flex;gap:1rem;justify-content:center;font-size:.9rem;flex-wrap:wrap}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
-.legend i{display:inline-block;width:18px;height:18px;border-radius:4px;background:var(--flow)}
-/* floating hearts bg */
+.legend i{width:18px;height:18px;border-radius:4px;background:var(--flow);display:inline-block}
 .bg-heart{position:fixed;inset:0;pointer-events:none;z-index:-1}
-.bg-heart span{
-  position:absolute;top:-20px;left:-20px;width:18px;height:18px;
-  background:var(--pink-dark);
-  clip-path:polygon(50% 0,61% 12%,75% 12%,86% 25%,93% 39%,94% 55%,89% 68%,78% 82%,64% 94%,50% 98%,36% 94%,22% 82%,11% 68%,6% 55%,7% 39%,14% 25%,25% 12%,39% 12%);
-  opacity:.4;animation:float 12s linear infinite;
-}
-@keyframes float{
-  0%{transform:translate(0,0) scale(.6)}
-  100%{transform:translate(120vw,110vh) scale(1.2)}
-}
-@media(max-width:500px){
-  .controls select{flex:1}
-  .calendar{gap:.25rem}
-}
+.bg-heart span{position:absolute;top:-20px;left:-20px;width:18px;height:18px;background:var(--pink-dark);
+               clip-path:polygon(50% 0,61% 12%,75% 12%,86% 25%,93% 39%,94% 55%,89% 68%,78% 82%,64% 94%,50% 98%,36% 94%,22% 82%,11% 68%,6% 55%,7% 39%,14% 25%,25% 12%,39% 12%);
+               opacity:.4;animation:float 12s linear infinite}
+@keyframes float{0%{transform:translate(0,0) scale(.6)}100%{transform:translate(120vw,110vh) scale(1.2)}}
+@media(max-width:500px){.controls select{flex:1}.calendar{gap:.25rem}}
 </style>
 </head>
+
 <body>
 <div class="bg-heart" aria-hidden="true"></div>
 
@@ -118,14 +78,13 @@ main{width:100%;max-width:900px}
 <script>
 /* ----------  Firebase init  ---------- */
 const firebaseConfig = {
-  apiKey: "AIzaSyAEacNMb8P4_ntJbD1i1fOMqujJhkMwucY",
-  authDomain: "aanda-cf402.firebaseapp.com",
-  databaseURL: "https://aanda-cf402-default-rtdb.firebaseio.com",
-  projectId: "aanda-cf402",
-  storageBucket: "aanda-cf402.appspot.com",
-  messagingSenderId: "730855951840",
-  appId: "1:730855951840:web:77a83312f37dd7f47e2f85",
-  measurementId: "G-JEZ18PYCVQ"
+  apiKey:"AIzaSyAEacNMb8P4_ntJbD1i1fOMqujJhkMwucY",
+  authDomain:"aanda-cf402.firebaseapp.com",
+  databaseURL:"https://aanda-cf402-default-rtdb.firebaseio.com",
+  projectId:"aanda-cf402",
+  storageBucket:"aanda-cf402.appspot.com",
+  messagingSenderId:"730855951840",
+  appId:"1:730855951840:web:77a83312f37dd7f47e2f85"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
@@ -137,92 +96,97 @@ const calEl  = document.getElementById('calendar'),
       prevBtn = document.getElementById('prevBtn'),
       nextBtn = document.getElementById('nextBtn');
 
-const MONTHS = [...Array(12)].map((_,i)=>new Date(0,i).toLocaleString('default',{month:'long'}));
+const MONTHS=[...Array(12)].map((_,i)=>new Date(0,i).toLocaleString('default',{month:'long'}));
 MONTHS.forEach((m,i)=>monthSel.innerHTML+=`<option value="${i}">${m}</option>`);
-const THIS_YEAR = new Date().getFullYear();
-for(let y=THIS_YEAR-5; y<=THIS_YEAR+5; y++) yearSel.innerHTML+=`<option>${y}</option>`;
+const THIS_YEAR=new Date().getFullYear();
+for(let y=THIS_YEAR-5;y<=THIS_YEAR+5;y++)yearSel.innerHTML+=`<option>${y}</option>`;
 
 /* ---------- Firebase helpers ---------- */
-function key(y,m){ return `journal/${y}-${m}` }
-let CURRENT_DATA = {};
+function key(y,m){return `journal/${y}-${m}`}
+let CURRENT_DATA={};
 
-function save(y,m,data){ db.ref(key(y,m)).set(data); }
+function save(y,m,data){db.ref(key(y,m)).set(data)}
 
 function subscribe(y,m){
-  db.ref(key(y,m)).on('value', snap => {
-    CURRENT_DATA = snap.val() || {};
-    buildCalendar(+y,+m);
-  });
+  /* draw immediately so user sees a grid */
+  CURRENT_DATA={};
+  buildCalendar(+y,+m);
+
+  /* then listen for real data */
+  db.ref(key(y,m)).on('value',
+    snap=>{CURRENT_DATA=snap.val()||{};buildCalendar(+y,+m)},
+    err => console.error('[Firebase read error]',err.code,err.message)
+  );
 }
 
 /* ---------- Calendar render ---------- */
 function buildCalendar(year,month){
   calEl.innerHTML='';
-  const firstDay = new Date(year,month,1).getDay();          // 0 = Sun
-  const lastDate = new Date(year,month+1,0).getDate();
-  const data = CURRENT_DATA;
+  const firstDay=new Date(year,month,1).getDay();
+  const lastDate=new Date(year,month+1,0).getDate();
+  const data=CURRENT_DATA;
 
+  /* leading blanks */
   for(let i=0;i<firstDay;i++){
-    const blank=document.createElement('div');
-    blank.className='day disabled';
-    calEl.appendChild(blank);
+    const b=document.createElement('div');b.className='day disabled';calEl.appendChild(b);
   }
-  for(let d=1; d<=lastDate; d++){
+  for(let d=1;d<=lastDate;d++){
     const cell=document.createElement('div');
-    cell.className='day';
-    cell.tabIndex=0;
-    cell.dataset.date=d;
+    cell.className='day';cell.tabIndex=0;cell.dataset.date=d;
     cell.innerHTML=`<span class="date">${d}</span>`;
-    if(data[d]?.period) cell.classList.add('period');
-    if(data[d]?.mood)   cell.innerHTML+=`<span class="mood">${data[d].mood}</span>`;
+    if(data[d]?.period)cell.classList.add('period');
+    if(data[d]?.mood)cell.innerHTML+=`<span class="mood">${data[d].mood}</span>`;
     calEl.appendChild(cell);
   }
-  VanillaTilt.init(document.querySelectorAll('.day:not(.disabled)'),{max:4,speed:400,scale:1.05});
+  /* tilt only if library is present */
+  if(window.VanillaTilt){
+    VanillaTilt.init(document.querySelectorAll('.day:not(.disabled)'),{max:4,speed:400,scale:1.05});
+  }
 }
 
 /* ---------- Day tap / long-press ---------- */
 let pressTimer=null;
 calEl.addEventListener('pointerdown',e=>{
-  const cell=e.target.closest('.day'); if(!cell||cell.classList.contains('disabled')) return;
-  pressTimer=setTimeout(()=>{                     /* long-press → mood */
+  const cell=e.target.closest('.day');if(!cell||cell.classList.contains('disabled'))return;
+  pressTimer=setTimeout(()=>{               /* long-press = mood */
     const moods=['😊','😍','😔','😭','🤪','😴','🤯','🤢'],
-          pick=prompt('Mood emoji? (enter any emoji)', moods[Math.floor(Math.random()*moods.length)]);
-    if(pick){toggleMood(cell.dataset.date,pick)}
+          pick=prompt('Mood emoji? (enter any emoji)',
+                       moods[Math.floor(Math.random()*moods.length)]);
+    if(pick)toggleMood(cell.dataset.date,pick);
     pressTimer=null;
   },500);
 });
 calEl.addEventListener('pointerup',e=>{
-  if(pressTimer){                               /* short tap → period */
+  if(pressTimer){                           /* short tap = period */
     clearTimeout(pressTimer);
-    const cell=e.target.closest('.day'); if(!cell) return;
-    togglePeriod(cell.dataset.date);
+    const cell=e.target.closest('.day');if(cell)togglePeriod(cell.dataset.date);
   }
 });
 
 function togglePeriod(date){
-  const y=yearSel.value, m=monthSel.value;
-  const data=Object.assign({}, CURRENT_DATA);
-  data[date] = data[date] || {};
-  data[date].period = !data[date].period;
-  if(!data[date].period && !data[date].mood) delete data[date];
+  const y=yearSel.value,m=monthSel.value;
+  const data={...CURRENT_DATA};
+  data[date]=data[date]||{};
+  data[date].period=!data[date].period;
+  if(!data[date].period&&!data[date].mood)delete data[date];
   save(y,m,data);
 }
 function toggleMood(date,emoji){
-  const y=yearSel.value, m=monthSel.value;
-  const data=Object.assign({}, CURRENT_DATA);
-  data[date] = data[date] || {};
-  data[date].mood = emoji;
+  const y=yearSel.value,m=monthSel.value;
+  const data={...CURRENT_DATA};
+  data[date]=data[date]||{};
+  data[date].mood=emoji;
   save(y,m,data);
 }
 
 /* ---------- Month navigation ---------- */
-function jump(y,m){ yearSel.value=y; monthSel.value=m; subscribe(y,m); }
-prevBtn.onclick = ()=>{let y=+yearSel.value,m=+monthSel.value-1;if(m<0){m=11;y--;}jump(y,m);}
-nextBtn.onclick = ()=>{let y=+yearSel.value,m=+monthSel.value+1;if(m>11){m=0;y++;}jump(y,m);}
-monthSel.onchange = yearSel.onchange = ()=>jump(+yearSel.value,+monthSel.value);
+function jump(y,m){yearSel.value=y;monthSel.value=m;subscribe(y,m)}
+prevBtn.onclick=()=>{let y=+yearSel.value,m=+monthSel.value-1;if(m<0){m=11;y--;}jump(y,m)}
+nextBtn.onclick=()=>{let y=+yearSel.value,m=+monthSel.value+1;if(m>11){m=0;y++;}jump(y,m)}
+monthSel.onchange=yearSel.onchange=()=>jump(+yearSel.value,+monthSel.value)
 
-/* ---------- Init ---------- */
-jump(new Date().getFullYear(), new Date().getMonth());
+/* ---------- Initial load ---------- */
+jump(new Date().getFullYear(),new Date().getMonth());
 
 /* ---------- Floating hearts ---------- */
 const bg=document.querySelector('.bg-heart');
