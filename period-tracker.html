@@ -19,8 +19,8 @@
   --navy:#0A1D37;
   --navy-light:#213659;
   --bg:#FFFAFD;
-  --flow:#FFAAC3;
-  --mood:#FDF2F8;
+  --flow:#FFAAC3;   /* active period cells   */
+  --mood:#FDF2F8;   /* mood background cells */
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -74,6 +74,7 @@ main{width:100%;max-width:900px}
 .legend{margin:2.2rem 0 0;display:flex;gap:1rem;justify-content:center;font-size:.9rem;flex-wrap:wrap}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
 .legend i{display:inline-block;width:18px;height:18px;border-radius:4px;background:var(--flow)}
+/* floating hearts bg */
 .bg-heart{position:fixed;inset:0;pointer-events:none;z-index:-1}
 .bg-heart span{
   position:absolute;top:-20px;left:-20px;width:18px;height:18px;
@@ -93,7 +94,12 @@ main{width:100%;max-width:900px}
 </head>
 <body>
 <div class="bg-heart" aria-hidden="true"></div>
-<header><h1>Anne’s Flo</h1><p>Tap a day to toggle <em>Period</em>, long-press to add a <em>Mood</em> ✨</p></header>
+
+<header>
+  <h1>Anne’s Flo</h1>
+  <p>Tap a day to toggle <em>Period</em>, long-press to add a <em>Mood</em> ✨</p>
+</header>
+
 <main>
   <div class="controls">
     <button id="prevBtn">⟵</button>
@@ -109,6 +115,7 @@ main{width:100%;max-width:900px}
 </main>
 
 <script>
+/* ----------  Firebase init  ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyAEacNMb8P4_ntJbD1i1fOMqujJhkMwucY",
   authDomain: "aanda-cf402.firebaseapp.com",
@@ -122,6 +129,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+/* ---------- DOM refs & constants ---------- */
 const calEl  = document.getElementById('calendar'),
       monthSel= document.getElementById('monthSelect'),
       yearSel = document.getElementById('yearSelect'),
@@ -133,9 +141,12 @@ MONTHS.forEach((m,i)=>monthSel.innerHTML+=`<option value="${i}">${m}</option>`);
 const THIS_YEAR = new Date().getFullYear();
 for(let y=THIS_YEAR-5; y<=THIS_YEAR+5; y++) yearSel.innerHTML+=`<option>${y}</option>`;
 
+/* ---------- Firebase helpers ---------- */
 function key(y,m){ return `journal/${y}-${m}` }
 let CURRENT_DATA = {};
+
 function save(y,m,data){ db.ref(key(y,m)).set(data); }
+
 function subscribe(y,m){
   db.ref(key(y,m)).on('value', snap => {
     CURRENT_DATA = snap.val() || {};
@@ -143,9 +154,10 @@ function subscribe(y,m){
   });
 }
 
+/* ---------- Calendar render ---------- */
 function buildCalendar(year,month){
   calEl.innerHTML='';
-  const firstDay = new Date(year,month,1).getDay();
+  const firstDay = new Date(year,month,1).getDay();          // 0 = Sun
   const lastDate = new Date(year,month+1,0).getDate();
   const data = CURRENT_DATA;
 
@@ -161,16 +173,17 @@ function buildCalendar(year,month){
     cell.dataset.date=d;
     cell.innerHTML=`<span class="date">${d}</span>`;
     if(data[d]?.period) cell.classList.add('period');
-    if(data[d]?.mood) cell.innerHTML+=`<span class="mood">${data[d].mood}</span>`;
+    if(data[d]?.mood)   cell.innerHTML+=`<span class="mood">${data[d].mood}</span>`;
     calEl.appendChild(cell);
   }
   VanillaTilt.init(document.querySelectorAll('.day:not(.disabled)'),{max:4,speed:400,scale:1.05});
 }
 
+/* ---------- Day tap / long-press ---------- */
 let pressTimer=null;
 calEl.addEventListener('pointerdown',e=>{
   const cell=e.target.closest('.day'); if(!cell||cell.classList.contains('disabled')) return;
-  pressTimer=setTimeout(()=>{
+  pressTimer=setTimeout(()=>{                     /* long-press → mood */
     const moods=['😊','😍','😔','😭','🤪','😴','🤯','🤢'],
           pick=prompt('Mood emoji? (enter any emoji)', moods[Math.floor(Math.random()*moods.length)]);
     if(pick){toggleMood(cell.dataset.date,pick)}
@@ -178,7 +191,7 @@ calEl.addEventListener('pointerdown',e=>{
   },500);
 });
 calEl.addEventListener('pointerup',e=>{
-  if(pressTimer){
+  if(pressTimer){                               /* short tap → period */
     clearTimeout(pressTimer);
     const cell=e.target.closest('.day'); if(!cell) return;
     togglePeriod(cell.dataset.date);
@@ -201,12 +214,16 @@ function toggleMood(date,emoji){
   save(y,m,data);
 }
 
+/* ---------- Month navigation ---------- */
 function jump(y,m){ yearSel.value=y; monthSel.value=m; subscribe(y,m); }
 prevBtn.onclick = ()=>{let y=+yearSel.value,m=+monthSel.value-1;if(m<0){m=11;y--;}jump(y,m);}
 nextBtn.onclick = ()=>{let y=+yearSel.value,m=+monthSel.value+1;if(m>11){m=0;y++;}jump(y,m);}
 monthSel.onchange = yearSel.onchange = ()=>jump(+yearSel.value,+monthSel.value);
+
+/* ---------- Init ---------- */
 jump(new Date().getFullYear(), new Date().getMonth());
 
+/* ---------- Floating hearts ---------- */
 const bg=document.querySelector('.bg-heart');
 for(let i=0;i<35;i++){
   const h=document.createElement('span');
