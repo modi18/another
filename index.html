@@ -162,73 +162,32 @@ footer{text-align:center;padding:2rem 1rem;background:var(--navy);color:#fff;fon
 
     <!-- ♥ Roblox Arab Mic memory -->
     <figure class="polaroid" style="--i:3">
-      <img src="images/arab-mic.jpeg" alt="Arab Mic chaos">
+      <img src="images/arab-mic.jpg" alt="Arab Mic chaos">
       <figcaption>Arab Mic 🎤🔥</figcaption>
     </figure>
   </section>
 
- <!-- ♥ Roblox First-Date Story -->
-<section class="story" id="firstDate">
-  <h2>Our Very First Roblox Date</h2>
+  <!-- ♥ Roblox First-Date Story -->
+  <section class="story" id="firstDate">
+    <h2>Our Very First Roblox Date</h2>
+    <p><strong>17 June 2025.</strong> The night we finally logged in together—just you, me, and a universe of pixel chaos waiting to happen. I’d been counting the minutes, heart racing, wondering if your avatar would look as cute as your texts. Spoiler: it totally did. <span class="emoji">💗✨</span></p>
+    <p><em>Game #1 – Dog Walk:</em> First decision: pick a character. You grabbed the <em>doggo</em> role and I cheered, “Yesss, my little <strong>kalba</strong>!” We zoomed around the park, spammed “/e dance,” and leashed each other for fun. Then I swapped in as the dog and demanded <strong>real</strong> canine perks—let me chew your thongs the way our real puppy does, please! <span class="emoji">🐶🩲</span></p>
+    <p><em>Game #2 – Draw &amp; Switch:</em> Absolute doodle disaster. We both sucked (you a liiittle more, sorry 😜), but I picked a sunset because it’s your favourite view and I wanted it to be perfect. In the end our sketch looked wonky yet magical—and somehow beautiful anyway. <span class="emoji">🎨🌅</span></p>
+    <p><em>Game #3 – Dress to Impress:</em> theme: <q>Bad Bride.</q> You arrived in a neon-green taco suit; I rocked a glitter-femboy-bride fit and clinched the crown by <strong>one</strong> vote. Yes, I’m still bragging—and your fashion sense still needs walkies. <span class="emoji">✨👗🌮</span></p>
+    <p class="punchline">Three ridiculous games, infinite screenshots, and exactly <span class="heart">❤</span> one brand-new relationship unlocked.</p>
+  </section>
 
-  <p>
-    <strong>17 June 2025.</strong> The night we finally logged in
-    together—just you, me, and a universe of pixel chaos waiting to
-    happen. I’d been counting the minutes, heart racing, wondering if
-    your avatar would look as cute as your texts. Spoiler: it totally
-    did. <span class="emoji">💗✨</span>
-  </p>
+  <!-- ♥ Arab-Mic Story -->
+  <section class="story" id="arabMic">
+    <h2>Arab&nbsp;Mic Mayhem</h2>
+    <p><strong>19 June 2025.</strong> We hopped into <em>Arab Mic</em> thinking it’d be chill vibes and instantly landed in the middle of a roast-fest. Randoms bullied your poor avatar so hard, I nearly unplugged the router in rage. <span class="emoji">😤🔥</span></p>
+    <p><em>The clap-back:</em> You unmuted to defend yourself, dropped a perfectly placed swear, and the whole lobby fell silent. I froze too—because it was my **first time ever hearing your voice**. Spoiler: it was softer than marshmallow mochi and melted my heart in 0.2 sec. <span class="emoji">🎙️💘</span></p>
+    <p><em>The aftermath:</em> We bailed, spam-laughed in chat, and promised each other: “Next time we sing *together*, no bullies allowed.”</p>
+    <p class="punchline">One tiny curse. One huge swoon. Relationship level-up: unlocked again! <span class="heart">❤</span></p>
+  </section>
 
-  <p>
-    <em>Game #1 – Dog Walk:</em> First decision: pick a character.
-    You grabbed the <em>doggo</em> role and I cheered, “Yesss, my little
-    <strong>kalba</strong>!” We zoomed around the park, spammed
-    “/e dance,” and leashed each other for fun. Then I swapped in as the
-    dog and demanded <strong>real</strong> canine perks—let me chew your
-    thongs the way our real puppy does, please! <span class="emoji">🐶🩲</span>
-  </p>
-
-  <p>
-    <em>Game #2 – Draw &amp; Switch:</em> Absolute doodle disaster. We
-    both sucked (you a liiittle more, sorry 😜), but I picked a sunset
-    because it’s your favourite view and I wanted it to be perfect. In
-    the end our sketch looked wonky yet magical—and somehow beautiful
-    anyway. <span class="emoji">🎨🌅</span>
-  </p>
-
-  <p>
-    <em>Game #3 – Dress to Impress:</em> theme: <q>Bad Bride.</q>
-    You arrived in a neon-green taco suit; I rocked a glitter-femboy-bride
-    fit and clinched the crown by <strong>one</strong> vote. Yes, I’m
-    still bragging—and your fashion sense still needs walkies.
-    <span class="emoji">✨👗🌮</span>
-  </p>
-
-  <p class="punchline">
-    Three ridiculous games, infinite screenshots, and exactly
-    <span class="heart">❤</span> one brand-new relationship unlocked.
-  </p>
-</section>
-
-
-
-  <!-- Journal timeline (auto-filled by JS) -->
-  <ul id="timeline">
-
-    <!-- ♥ Hard-coded Arab Mic entry (now flagged as seed) -->
-    <li class="timeline-item seed reveal">
-      <div class="card" data-tilt>
-        <time>19 June 2025</time>
-        <p>
-          Dove into <em>Arab Mic</em> on Roblox and watched you get
-          mercilessly bullied by randos 🤬.<br>
-          Then you let a swear slip—first time I’d ever heard it—and
-          your real voice melted me on the spot. Instant heart-eyes. 💘
-        </p>
-      </div>
-    </li>
-
-  </ul>
+  <!-- Journal timeline (dynamic memories) -->
+  <ul id="timeline"></ul>
 </main>
 
 <footer>Made with 🌸 &amp; 💙 by Ahmed for Anne</footer>
@@ -280,8 +239,7 @@ function fmt(d){return new Date(d).toLocaleDateString(undefined,{year:'numeric',
 function store(arr){localStorage.setItem("loveJournal",JSON.stringify(arr))}
 function load(){return JSON.parse(localStorage.getItem("loveJournal")||"[]")}
 function render(){
-  /* wipe only non-seed dynamic items */
-  timeline.querySelectorAll('.timeline-item:not(.seed)').forEach(el=>el.remove());
+  timeline.innerHTML="";
   load().forEach(e=>{
     const li=document.createElement("li");
     li.className="timeline-item";
