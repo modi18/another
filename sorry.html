@@ -90,15 +90,57 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
 <!-- our logic now waits for DOMContentLoaded so Leaflet & Anime are guaranteed loaded -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    /******** Map (unchanged) ********/
-    const melb=[-37.8136,144.9631],kuw=[29.3759,47.9774];
-    /* … all your map code … */
 
-    /******** Forgiveness Meter ********/
-    const bar = document.getElementById('heartBar');
+    /* ────────────── 1. Map ────────────── */
+    const melb = [-37.8136, 144.9631],
+          kuw  = [29.3759,  47.9774];
+
+    const map = L.map('map', {
+      zoomControl: false,
+      scrollWheelZoom: false,
+      dragging: false,
+      boxZoom: false,
+      doubleClickZoom: false,
+      tap: false
+    });
+
+    const bounds = L.latLngBounds([melb, kuw]);
+    map.fitBounds(bounds, { padding: [50, 50] });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { attribution: '' }
+    ).addTo(map);
+
+    L.marker(melb).addTo(map)
+      .bindTooltip('Melbourne', { permanent: true, direction: 'top' });
+
+    L.marker(kuw).addTo(map)
+      .bindTooltip('Kuwait City', { permanent: true, direction: 'top' });
+
+    L.polyline([melb, kuw], {
+      color: '#FFA4C8', weight: 4, dashArray: '6 8'
+    }).addTo(map);
+
+    const kmVal = Math.round(map.distance(melb, kuw) / 1000);
+    const kmSpan = document.getElementById('km');
+    kmSpan.textContent = `${kmVal.toLocaleString()} km`;
+
+    // animated count‑up once anime.js is ready
+    if (window.anime) {
+      anime({
+        targets: kmSpan,
+        innerHTML: [0, kmVal],
+        round: 1,
+        duration: 2200,
+        easing: 'easeOutExpo'
+      });
+    }
+
+    /* ────────────── 2. Forgiveness Meter ────────────── */
+    const bar   = document.getElementById('heartBar');
     const TOTAL = 10;
-    let state = parseInt(localStorage.getItem('forgiveCount')) || 0;
-    const OFF = '🤍', ON = '💖';
+    let state   = parseInt(localStorage.getItem('forgiveCount')) || 0;
+    const OFF   = '🤍', ON = '💖';
 
     function render () {
       bar.innerHTML = '';
@@ -113,15 +155,14 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
         `${state} / ${TOTAL} hearts filled`;
     }
 
-    /* NEW click logic: toggle up OR down */
+    // toggle up *or* down on click
     bar.addEventListener('click', e => {
       const slot = e.target.closest('.heartSlot');
       if (!slot) return;
-      const idx = +slot.dataset.index;
 
-      // if you clicked a filled heart, shrink to that many;
-      // if you clicked an empty heart, grow up to it.
-      state = (idx < state) ? idx : idx + 1;
+      const idx = +slot.dataset.index;
+      state = (idx < state) ? idx     // clicked a filled heart → shrink
+                            : idx + 1; // clicked an empty heart → expand
       state = Math.max(0, Math.min(state, TOTAL));
 
       localStorage.setItem('forgiveCount', state);
@@ -129,18 +170,16 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
       if (state === TOTAL) celebrate();
     });
 
-    /* celebration & first render stay the same */
     function celebrate () {
       for (let i = 0; i < 140; i++) {
         const dot = document.createElement('span');
         dot.className = 'dot';
-        dot.style.background = ['#FFC9E0','#FFA4C8','#FCD3E5','#FFECF6'][
-          Math.floor(Math.random()*4)
-        ];
-        dot.style.left = `${window.innerWidth/2}px`;
-        dot.style.top  = `${window.innerHeight/2}px`;
-        const dx = (Math.random()*2-1)*800,
-              dy = (Math.random()*2-1)*800;
+        dot.style.background =
+          ['#FFC9E0', '#FFA4C8', '#FCD3E5', '#FFECF6'][Math.floor(Math.random()*4)];
+        dot.style.left = `${window.innerWidth / 2}px`;
+        dot.style.top  = `${window.innerHeight / 2}px`;
+        const dx = (Math.random()*2 - 1) * 800,
+              dy = (Math.random()*2 - 1) * 800;
         dot.style.setProperty('--dx', dx + 'px');
         dot.style.setProperty('--dy', dy + 'px');
         dot.style.animation = `fly 1.6s ease-out forwards`;
