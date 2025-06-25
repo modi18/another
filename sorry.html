@@ -3,15 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>From Melbourne → Kuwait: My Apology</title>
+<title>From Melbourne → Kuwait: My Apology</title>
 
-<!-- Fonts & libs -->
+<!-- Fonts & core libs -->
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- Map animation helper (hearts along the path) -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.7.0/dist/leaflet.polylineDecorator.min.js"></script>
+
+<!-- Animation + Leaflet -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Firebase SDKs (must load before our script) -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-database-compat.js"></script>
 
@@ -33,18 +38,14 @@ h1{
 
 /* Map */
 #map{width:100%;height:340px;border-radius:1rem;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.08)}
-.distBox{
-  margin-top:1rem;font-size:1.25rem;font-weight:600;text-align:center;
-}
+.distBox{margin-top:1rem;font-size:1.25rem;font-weight:600;text-align:center}
 .distBox span{background:var(--pink-dark);color:#fff;padding:.1rem .55rem;border-radius:.55rem}
 
 /* Forgiveness meter */
 #meterWrap{background:#fff;border-radius:1rem;box-shadow:0 6px 16px rgba(0,0,0,.06);padding:2rem 1.5rem;text-align:center}
 #meterWrap h2{font-family:'Pacifico',cursive;font-size:2rem;margin-bottom:1.1rem}
 .hearts{display:flex;gap:.65rem;justify-content:center;margin-bottom:1.3rem;flex-wrap:wrap}
-.heartSlot{
-  font-size:2rem;cursor:pointer;transition:.25s;color:#d3d3d3;user-select:none;
-}
+.heartSlot{font-size:2rem;cursor:pointer;transition:.25s;color:#d3d3d3;user-select:none}
 .heartSlot:hover{transform:translateY(-3px)}
 .heartSlot.on{color:#FF5E8E;transform:scale(1.18)}
 #progressText{font-weight:600;font-size:1.05rem}
@@ -61,23 +62,33 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
 </head>
 <body>
   <h1>For My Anne</h1>
-  <p class="subtitle">Across <strong>13 000&nbsp;+ km</strong> of ocean and desert, my heart keeps whispering one thing: <em>I’m sorry.</em> I never want distance—or my own fears—to make you feel pressured again. This page is a promise that I will do better and love you in ways that make you feel <span style="background:var(--pink);padding:0 .3rem;border-radius:.3rem">safe</span>.</p>
+  <p class="subtitle">
+    Across <strong>13 000&nbsp;+ km</strong> of ocean and desert, my heart keeps whispering one thing:
+    <em>I’m sorry.</em> I never want distance—or my own fears—to make you feel pressured again.
+    This page is a promise that I will do better and love you in ways that make you feel
+    <span style="background:var(--pink);padding:0 .3rem;border-radius:.3rem">safe</span>.
+  </p>
 
   <!-- Map Section -->
   <section class="section" id="mapSection">
     <div id="map" aria-label="Map showing Melbourne and Kuwait"></div>
-    <p class="distBox">We’re <span id="km"></span> apart right now — but you’re always right here with me 💗</p>
+    <p class="distBox">
+      We’re <span id="km"></span> apart right now — but you’re always right here with me 💗
+    </p>
   </section>
 
   <!-- Forgiveness Meter -->
   <section class="section" id="meterWrap">
-    <h2>Forgiveness Meter</h2>
-    <p style="margin-bottom:1rem">Tap the hearts each time you feel a little more okay. When they’re all pink, I’ll know you’ve forgiven me (and I’ll keep earning it every day).</p>
+    <h2>Forgiveness Meter</h2>
+    <p style="margin-bottom:1rem">
+      Tap the hearts each time you feel a little more okay. When they’re all pink,
+      I’ll know you’ve forgiven me (and I’ll keep earning it every day).
+    </p>
     <div class="hearts" id="heartBar"></div>
-    <p id="progressText">0 / 10 hearts filled</p>
+    <p id="progressText">0 / 10 hearts filled</p>
   </section>
 
-  <!-- Voice-apology placeholder -->
+  <!-- Voice‑apology placeholder -->
   <section class="section" style="text-align:center">
     <h2 style="font-family:'Pacifico',cursive;font-size:1.8rem;margin-bottom:1rem">My voice, my heart</h2>
     <p style="margin-bottom:1rem">Press play whenever you want to hear me say it.</p>
@@ -86,98 +97,133 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
 
   <a href="index.html" class="back">← Back to our home page</a>
 
-<!-- Scripts -->
-<!-- note: external libs keep defer so they load *before* DOMContentLoaded fires -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- our logic now waits for DOMContentLoaded so Leaflet & Anime are guaranteed loaded -->
+<!-- Main logic (runs after libs load) -->
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-    /* ───────── 0. Firebase init ───────── */
-    const firebaseConfig = {
-      apiKey:            "AIzaSyAEacNMb8P4_ntJbD1i1fOMqujJhkMwucY",
-      authDomain:        "aanda-cf402.firebaseapp.com",
-      databaseURL:       "https://aanda-cf402-default-rtdb.firebaseio.com",
-      projectId:         "aanda-cf402",
-      storageBucket:     "aanda-cf402.appspot.com",
-      messagingSenderId: "730855951840",
-      appId:             "1:730855951840:web:77a83312f37dd7f47e2f85"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db   = firebase.database();
-    const PATH = 'apologyMeter/forgiveCount';   // 🔸 feel free to rename
+  /* ───── 0. Firebase init ───── */
+  const firebaseConfig = {
+    apiKey:"AIzaSyAEacNMb8P4_ntJbD1i1fOMqujJhkMwucY",
+    authDomain:"aanda-cf402.firebaseapp.com",
+    databaseURL:"https://aanda-cf402-default-rtdb.firebaseio.com",
+    projectId:"aanda-cf402",
+    storageBucket:"aanda-cf402.appspot.com",
+    messagingSenderId:"730855951840",
+    appId:"1:730855951840:web:77a83312f37dd7f47e2f85"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db   = firebase.database();
+  const PATH = 'apologyMeter/forgiveCount';
 
-    /* ───────── 1. Map (unchanged) ───────── */
-    const melb=[-37.8136,144.9631],kuw=[29.3759,47.9774];
-    const map=L.map('map',{zoomControl:false,scrollWheelZoom:false,
-                           dragging:false,boxZoom:false,doubleClickZoom:false,tap:false});
-    map.fitBounds(L.latLngBounds([melb,kuw]),{padding:[50,50]});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:''}).addTo(map);
-    L.marker(melb).addTo(map).bindTooltip('Melbourne',{permanent:true,direction:'top'});
-    L.marker(kuw ).addTo(map).bindTooltip('Kuwait City',{permanent:true,direction:'top'});
-    L.polyline([melb,kuw],{color:'#FFA4C8',weight:4,dashArray:'6 8'}).addTo(map);
+  /* ───── 1. Map ───── */
+  const melb = [-37.8136, 144.9631],
+        kuw  = [29.3759,  47.9774];
 
-    const kmVal=Math.round(map.distance(melb,kuw)/1000);
-    const kmSpan=document.getElementById('km');
-    kmSpan.textContent=`${kmVal.toLocaleString()} km`;
-    if(window.anime){anime({targets:kmSpan,innerHTML:[0,kmVal],round:1,duration:2200,easing:'easeOutExpo'});}
-
-    /* ───────── 2. Forgiveness Meter ───────── */
-    const bar   = document.getElementById('heartBar');
-    const TOTAL = 10;
-    const OFF='🤍', ON='💖';
-    let   state = 0;                         // local copy
-
-    function render () {
-      bar.innerHTML = '';
-      for (let i = 0; i < TOTAL; i++) {
-        const slot = document.createElement('div');
-        slot.className   = 'heartSlot' + (i < state ? ' on' : '');
-        slot.textContent = i < state ? ON : OFF;
-        slot.dataset.index = i;
-        bar.appendChild(slot);
-      }
-      document.getElementById('progressText').textContent =
-        `${state} / ${TOTAL} hearts filled`;
-    }
-
-    /* live sync from Firebase */
-    db.ref(PATH).on('value',
-      snap => { state = snap.val() ?? 0; render(); },
-      err  => console.error('[Firebase read error]', err.code, err.message)
-    );
-
-    /* click handler – update Firebase */
-    bar.addEventListener('click', e => {
-      const slot = e.target.closest('.heartSlot');
-      if (!slot) return;
-      const idx = +slot.dataset.index;
-      state = (idx < state) ? idx        // shrink
-                            : idx + 1;   // grow
-      state = Math.max(0, Math.min(state, TOTAL));
-      db.ref(PATH).set(state);           // ← writes persist remotely
-      if (state === TOTAL) celebrate();
-    });
-
-    function celebrate () {
-      for (let i = 0; i < 140; i++) {
-        const dot = document.createElement('span');
-        dot.className = 'dot';
-        dot.style.background =
-          ['#FFC9E0','#FFA4C8','#FCD3E5','#FFECF6'][Math.floor(Math.random()*4)];
-        dot.style.left = `${window.innerWidth/2}px`;
-        dot.style.top  = `${window.innerHeight/2}px`;
-        const dx=(Math.random()*2-1)*800, dy=(Math.random()*2-1)*800;
-        dot.style.setProperty('--dx',dx+'px');
-        dot.style.setProperty('--dy',dy+'px');
-        dot.style.animation='fly 1.6s ease-out forwards';
-        document.body.appendChild(dot);
-        setTimeout(()=>dot.remove(),1600);
-      }
-    }
+  const map = L.map('map',{
+    zoomControl:false, scrollWheelZoom:false, dragging:false,
+    boxZoom:false, doubleClickZoom:false, tap:false
   });
+  map.fitBounds(L.latLngBounds([melb,kuw]),{padding:[50,50]});
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              { attribution:'' }).addTo(map);
+
+  /* cute heart‑emoji markers */
+  const heartIcon = L.divIcon({
+    html:'💗', className:'emojiMarker', iconSize:[28,28]
+  });
+  L.marker(melb,{icon:heartIcon}).addTo(map)
+    .bindTooltip('Melbourne',{permanent:true,direction:'top'});
+  L.marker(kuw ,{icon:heartIcon}).addTo(map)
+    .bindTooltip('Kuwait City',{permanent:true,direction:'top'});
+
+  /* dotted‑heart flight path */
+  const path = L.polyline([melb,kuw],{weight:0}).addTo(map);
+  L.polylineDecorator(path,{
+    patterns:[{
+      offset:'0%', repeat:'24px',
+      symbol: L.Symbol.dash({
+        pixelSize:0,
+        svg:{type:'text',text:'❤',
+             attributes:{'font-size':18,'fill':'#FF5E8E','font-family':'sans-serif'}}
+      })
+    }]
+  }).addTo(map);
+
+  /* distance read‑out with anime.js */
+  const kmVal  = Math.round(map.distance(melb,kuw)/1000),
+        kmSpan = document.getElementById('km');
+  kmSpan.textContent = `${kmVal.toLocaleString()} km`;
+  if (window.anime) {
+    anime({
+      targets: kmSpan, innerHTML:[0,kmVal], round:1,
+      duration:2200, easing:'easeOutExpo'
+    });
+  }
+
+  /* ───── 2. Forgiveness Meter ───── */
+  const bar    = document.getElementById('heartBar');
+  const TOTAL  = 10;
+  const OFF='🤍',  ON='💖';
+  let   state  = 0;
+
+  function render(){
+    bar.innerHTML='';
+    for (let i=0;i<TOTAL;i++){
+      const slot=document.createElement('div');
+      slot.className='heartSlot'+(i<state?' on':'');
+      slot.textContent=i<state?ON:OFF;
+      slot.dataset.index=i;
+      bar.appendChild(slot);
+    }
+    document.getElementById('progressText').textContent =
+      `${state} / ${TOTAL} hearts filled`;
+  }
+
+  /* live sync from Firebase */
+  db.ref(PATH).on('value',
+    snap => { state = snap.val() ?? 0; render(); },
+    err  => console.error('[Firebase read error]',err.code,err.message)
+  );
+
+  /* click → update Firebase */
+  bar.addEventListener('click',e=>{
+    const slot=e.target.closest('.heartSlot'); if(!slot) return;
+    const idx=+slot.dataset.index;
+    state=(idx<state)?idx:idx+1;
+    state=Math.max(0,Math.min(state,TOTAL));
+    db.ref(PATH).set(state);
+    if(state===TOTAL) celebrate();
+  });
+
+  /* confetti */
+  function celebrate(){
+    for(let i=0;i<140;i++){
+      const dot=document.createElement('span');
+      dot.className='dot';
+      dot.style.background=['#FFC9E0','#FFA4C8','#FCD3E5','#FFECF6'][Math.floor(Math.random()*4)];
+      dot.style.left=`${window.innerWidth/2}px`;
+      dot.style.top =`${window.innerHeight/2}px`;
+      const dx=(Math.random()*2-1)*800, dy=(Math.random()*2-1)*800;
+      dot.style.setProperty('--dx',dx+'px');
+      dot.style.setProperty('--dy',dy+'px');
+      dot.style.animation='fly 1.6s ease-out forwards';
+      document.body.appendChild(dot);
+      setTimeout(()=>dot.remove(),1600);
+    }
+  }
+});
 </script>
+
+<!-- tiny style just for emoji markers -->
+<style>
+.emojiMarker{
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));
+  font-size:30px;
+  animation:pulse 3s ease-in-out infinite;
+}
+@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.25)}}
+</style>
 </body>
 </html>
