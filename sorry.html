@@ -24,7 +24,7 @@ h1{
   font-family:'Pacifico',cursive;font-size:clamp(2.2rem,5vw,3.5rem);text-align:center;
   background:linear-gradient(90deg,var(--pink-dark),var(--pink));-webkit-background-clip:text;color:transparent;
 }
-.subtitle{margin:.8rem 0 2.2rem;text-align:center;font-size:1.1rem;max-width:600px;line-height:1.55}
+.subtitle{margin:.8rem 0 2.2rem;text-align:center;font-size:1.1rem;max-width:650px;line-height:1.6}
 .section{width:100%;max-width:900px;margin:2.8rem auto}
 
 /* Map */
@@ -32,19 +32,22 @@ h1{
 .distBox{
   margin-top:1rem;font-size:1.25rem;font-weight:600;text-align:center;
 }
-.distBox span{background:var(--pink-dark);color:#fff;padding:.1rem .5rem;border-radius:.5rem}
+.distBox span{background:var(--pink-dark);color:#fff;padding:.1rem .55rem;border-radius:.55rem}
 
 /* Forgiveness meter */
 #meterWrap{background:#fff;border-radius:1rem;box-shadow:0 6px 16px rgba(0,0,0,.06);padding:2rem 1.5rem;text-align:center}
-#meterWrap h2{font-family:'Pacifico',cursive;font-size:2rem;margin-bottom:1.2rem}
-.hearts{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.2rem;flex-wrap:wrap}
-.heartSlot{width:38px;height:38px;cursor:pointer;display:grid;place-items:center;font-size:1.8rem;filter:grayscale(1) opacity(.4);transition:.25s}
-.heartSlot.on{filter:none;transform:scale(1.1)}
+#meterWrap h2{font-family:'Pacifico',cursive;font-size:2rem;margin-bottom:1.1rem}
+.hearts{display:flex;gap:.65rem;justify-content:center;margin-bottom:1.3rem;flex-wrap:wrap}
+.heartSlot{
+  font-size:2rem;cursor:pointer;transition:.25s;color:#d3d3d3;user-select:none;
+}
+.heartSlot:hover{transform:translateY(-3px)}
+.heartSlot.on{color:#FF5E8E;transform:scale(1.18)}
 #progressText{font-weight:600;font-size:1.05rem}
 
 /* back link */
-a.back{display:inline-block;margin-top:2.4rem;text-decoration:none;font-weight:600;color:var(--navy);
-  background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;padding:.7rem 1.4rem;border-radius:999px;transition:.25s}
+a.back{display:inline-block;margin-top:2.6rem;text-decoration:none;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:.75rem 1.45rem;border-radius:999px;transition:.25s}
 a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
 
 /* Confetti dots */
@@ -65,7 +68,7 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
   <!-- Forgiveness Meter -->
   <section class="section" id="meterWrap">
     <h2>Forgiveness Meter</h2>
-    <p style="margin-bottom:1rem">Tap the hearts each time you feel a little more okay. When they’re all glowing, I’ll know you’ve forgiven me (and I’ll keep earning it every day).</p>
+    <p style="margin-bottom:1rem">Tap the hearts each time you feel a little more okay. When they’re all pink, I’ll know you’ve forgiven me (and I’ll keep earning it every day).</p>
     <div class="hearts" id="heartBar"></div>
     <p id="progressText">0 / 10 hearts filled</p>
   </section>
@@ -83,24 +86,27 @@ a.back:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
 <script>
 /******** Map ********/
 const melb=[-37.8136,144.9631],kuw=[29.3759,47.9774];
-const map=L.map('map',{zoomControl:false,scrollWheelZoom:false,dragging:false,boxZoom:false,doubleClickZoom:false,tap:false}).setView([(-4.219+14.5),95],3.3);
+const map=L.map('map',{zoomControl:false,scrollWheelZoom:false,dragging:false,boxZoom:false,doubleClickZoom:false,tap:false});
+const bounds=L.latLngBounds([melb,kuw]);
+map.fitBounds(bounds,{padding:[50,50]});
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:''}).addTo(map);
 const melbMarker=L.marker(melb).addTo(map).bindTooltip('Melbourne', {permanent:true, direction:'top'}),
       kuwMarker=L.marker(kuw).addTo(map).bindTooltip('Kuwait City', {permanent:true, direction:'top'});
-const line=L.polyline([melb,kuw],{color:'#FFA4C8',weight:4,dashArray:'6 8'}).addTo(map);
-const km=Math.round(map.distance(melb,kuw)/1000);
-document.getElementById('km').textContent=`${km.toLocaleString()} km`;
+L.polyline([melb,kuw],{color:'#FFA4C8',weight:4,dashArray:'6 8'}).addTo(map);
+const kmVal=Math.round(map.distance(melb,kuw)/1000);
+document.getElementById('km').textContent=`${kmVal.toLocaleString()} km`;
 
 /******** Forgiveness Meter ********/
 const bar=document.getElementById('heartBar');
 const TOTAL=10;
-let state=+localStorage.getItem('forgiveCount')||0;
+let state=parseInt(localStorage.getItem('forgiveCount'))||0;
+const OFF='🤍',ON='💖';
 function render(){
   bar.innerHTML='';
   for(let i=0;i<TOTAL;i++){
     const slot=document.createElement('div');
     slot.className='heartSlot'+(i<state?' on':'');
-    slot.innerHTML='❤';
+    slot.textContent=i<state?ON:OFF;
     slot.dataset.index=i;
     bar.appendChild(slot);
   }
@@ -110,32 +116,33 @@ bar.addEventListener('click',e=>{
   const slot=e.target.closest('.heartSlot');
   if(!slot)return;
   const idx=+slot.dataset.index;
-  if(idx===state){ // fill next only in order
+  if(idx===state){
     state++;
+    if(state>10)state=10;
     localStorage.setItem('forgiveCount',state);
     render();
     if(state===TOTAL)celebrate();
   }
 });
 function celebrate(){
-  for(let i=0;i<120;i++){
+  for(let i=0;i<140;i++){
     const dot=document.createElement('span');
     dot.className='dot';
     dot.style.background=['#FFC9E0','#FFA4C8','#FCD3E5','#FFECF6'][Math.floor(Math.random()*4)];
-    dot.style.left=`${event?.clientX||window.innerWidth/2}px`;
-    dot.style.top=`${event?.clientY||window.innerHeight/2}px`;
+    dot.style.left=`${window.innerWidth/2}px`;
+    dot.style.top=`${window.innerHeight/2}px`;
     const dx=(Math.random()*2-1)*800,dy=(Math.random()*2-1)*800;
     dot.style.setProperty('--dx',dx+'px');
     dot.style.setProperty('--dy',dy+'px');
-    dot.style.animation=`fly 1.4s ease-out forwards`;
+    dot.style.animation=`fly 1.6s ease-out forwards`;
     document.body.appendChild(dot);
-    setTimeout(()=>dot.remove(),1400);
+    setTimeout(()=>dot.remove(),1600);
   }
 }
 render();
 
-/******** Number counting animation once page loads ********/
-anime({targets:'#km',innerHTML:[0,km],round:1,duration:2200,easing:'easeOutExpo'});
+/******** Number counting animation ********/
+anime({targets:'#km',innerHTML:[0,kmVal],round:1,duration:2200,easing:'easeOutExpo'});
 </script>
 </body>
 </html>
